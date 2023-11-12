@@ -69,7 +69,8 @@ class GAct10Generator {
             }
         }
 
-        return lines.joinToString("\n")
+        // ここで重複したローマ字マップを削除しつつ、改行で結合して返す。
+        return lines.distinct().joinToString("\n")
     }
 
     /**
@@ -366,6 +367,11 @@ class GAct10Generator {
             "VUN" -> return "う゛ん"
             "VEN" -> return "う゛ぇん"
             "VON" -> return "う゛ぉん"
+            "JAN" -> return "じゃん"
+            "JIN" -> return "じん"
+            "JUN" -> return "じゅん"
+            "JEN" -> return "じぇん"
+            "JON" -> return "じょん"
 
             // 拗音+撥音
             // `y`は二重母音で使用されているので、通常のyを使う拗音は使用不可とする。
@@ -501,9 +507,6 @@ class GAct10Generator {
             "ZHUN" -> return "じゅん"
             "ZHEN" -> return "じぇん"
             "ZHON" -> return "じょん"
-            "JAN" -> return "じゃん"
-            "JUN" -> return "じゅん"
-            "JON" -> return "じょん"
             "DNAN" -> return "ぢゃん"
             "DNIN" -> return "ぢぃん"
             "DNUN" -> return "ぢゅん"
@@ -606,6 +609,11 @@ class GAct10Generator {
             "VEI" -> return "ゔぇい"
             "VUU" -> return ""
             "VUI" -> return ""
+            "JAI" -> return "じゃい"
+            "JOU" -> return "じょう"
+            "JEI" -> return "じぇい"
+            "JUU" -> return "じゅう"
+            "JUI" -> return "じゅい"
 
             // 拗音+二重母音
             // `y`は二重母音で使用されているので、通常のyを使う拗音は使用不可とする。
@@ -741,11 +749,6 @@ class GAct10Generator {
             "ZHEI" -> return "じぇい"
             "ZHUU" -> return "じゅう"
             "ZHUI" -> return "じゅい"
-            "JAI" -> return "じゃい"
-            "JOU" -> return "じょう"
-            "JEI" -> return "じぇい"
-            "JUU" -> return "じゅう"
-            "JUI" -> return "じゅい"
             "DNAI" -> return "ぢゃい"
             "DNOU" -> return "ぢょう"
             "DNEI" -> return "ぢぇい"
@@ -805,6 +808,7 @@ class GAct10Generator {
         B("b"),
         P("p"),
         V("v"), // 若干例外的だがVも追加
+        J("j"),
 
         // 拗音
         CY("cy"),
@@ -838,7 +842,6 @@ class GAct10Generator {
         DN("dn"),
         BN("bn"),
         PH("ph");
-
     }
 
     /**

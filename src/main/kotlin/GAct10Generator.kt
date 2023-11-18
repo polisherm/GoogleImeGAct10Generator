@@ -32,13 +32,19 @@ class GAct10Generator {
         }
 
         // 二重母音拡張したキーとそれが出力するひらがなを全部作成してマップに格納する。
-        val doubleVowelMapExtensionMap = mutableMapOf<String, String>()
+        val doubleVowelExtensionMap = mutableMapOf<String, String>()
         DoubleVowelExtension.entries.forEach { doubleVowelExtension ->
             Consonant.entries.forEach { consonant ->
                 val key = "${consonant.key}${doubleVowelExtension.key}"
                 val value = convertHiraganaFrom("${consonant.name}${doubleVowelExtension.name}")
-                doubleVowelMapExtensionMap[key] = value
+                doubleVowelExtensionMap[key] = value
             }
+        }
+
+        // 既存のローマ字マップを読み込む
+        val existingMap = file.readLines().associate { line ->
+            val (key, value) = line.split("\t")
+            key to value
         }
 
         // ロードしたファイルの内容 + 拡張キーを結果として返す。
@@ -46,26 +52,36 @@ class GAct10Generator {
         //  既存のファイルにキーマップを追加する人は上、既存のファイルは捨ててこのツールで生成したものを使う人は下の処理を使用
         val lines = file.readLines().toMutableList()  // 既存のファイルにキーマップを追加する。
 //        val lines = mutableListOf<String>() // 既存のファイルは読み込まない。
-        vowelAndConsonantMap.forEach {
-            // value(キーに対応する実際の入力)が空の場合はスキップ。
-            val addedText = "${it.key}\t${it.value}"
-            if (it.value.isNotBlank()) {
-                lines.add(addedText)
+
+        vowelAndConsonantMap.forEach { (key, value) ->
+            // 既存のファイルにローマ字マップが存在しないときのみ追加する。
+            // 以下、すべての拡張キーについて同様。
+            if (key !in existingMap) {
+                // value(キーに対応する実際の入力)が空の場合はスキップ。
+                val addedText = "${key}\t${value}"
+                if (value.isNotBlank()) {
+                    lines.add(addedText)
+                }
+            }
+
+        }
+        syllabicNasalExtensionMap.forEach { (key, value) ->
+            if (key !in existingMap) {
+                // value(キーに対応する実際の入力)が空の場合はスキップ。
+                // eg) when -> "" なのでスキップ
+                val addedText = "${key}\t${value}"
+                if (value.isNotBlank()) {
+                    lines.add(addedText)
+                }
             }
         }
-        syllabicNasalExtensionMap.forEach {
-            // value(キーに対応する実際の入力)が空の場合はスキップ。
-            // eg) whan -> "" なのでスキップ
-            val addedText = "${it.key}\t${it.value}"
-            if (it.value.isNotBlank()) {
-                lines.add(addedText)
-            }
-        }
-        doubleVowelMapExtensionMap.forEach {
-            // value(キーに対応する実際の入力)が空の場合はスキップ。
-            val addedText = "${it.key}\t${it.value}"
-            if (it.value.isNotBlank()) {
-                lines.add(addedText)
+        doubleVowelExtensionMap.forEach { (key, value) ->
+            if (key !in existingMap) {
+                // value(キーに対応する実際の入力)が空の場合はスキップ。
+                val addedText = "${key}\t${value}"
+                if (value.isNotBlank()) {
+                    lines.add(addedText)
+                }
             }
         }
 
@@ -78,7 +94,7 @@ class GAct10Generator {
      * ブルートフォースだが...再利用もしないのでとりあえずはこのままで。
      */
     private fun convertHiraganaFrom(romanAlphabet: String): String {
-        when(romanAlphabet) {
+        when (romanAlphabet) {
             // 子音+母音
             "CA" -> return "か"
             "CI" -> return "き"
